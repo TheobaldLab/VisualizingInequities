@@ -194,7 +194,7 @@ server <- function(input, output, session) {
   
   # Render the image
   output$myImage <- renderImage({
-    list(src = "images/app_image.png",
+    list(src = "app_image.png",
          alt = "Your Image Alt Text",
          width = 500, height = 400)
   }, deleteFile = FALSE)

@@ -1,0 +1,12 @@
+name: visualizinginequities
+title:
+username: theobaldlab
+account: theobaldlab
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12256628
+bundleId: 8809409
+url: https://theobaldlab.shinyapps.io/visualizinginequities/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
