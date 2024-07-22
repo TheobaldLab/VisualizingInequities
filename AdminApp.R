@@ -17,15 +17,8 @@ library(tidyverse)
 ## load your data file
 class.data <- read.csv("Template_Inequities_In_Course_Performance_Cleaned.csv") #huskies: make sure the text in quotations exactly matches your csv file name
 
-# if (username=="admin"){
-#   class.data1 <-class.data
-# } else {
-#   class.data1 <- subset(class.data, (instructors == users$username)) 
-# }
 
 ######### DEFINE VARIABLES #########
-
-numinstructors <-30
 
 ##### Define date ranges #####
 minyear <- min(class.data$course.year)
@@ -65,45 +58,34 @@ url10 <-a("Resources from UW Teach", href = "https://teaching.washington.edu/inc
 ## user database
 # define authorized user names and passwords
 # cougars, define or read in a dataframe of user names and passwords for your organization 
-
-# Use a for loop to generate the instructor names
-instructor_names <- vector("character", numinstructors)
-instructor_password <- vector("character", numinstructors)
-for (i in 1:numinstructors) {
-  instructor_names[i] <- paste("instructor", i, sep = "")
-  instructor_password[i] <- paste("pass", i, sep = "")
-}
-
-
 users <- data.frame(
-  username = instructor_names,
-  password = instructor_password,
+  username = c("admin"),
+  password = c("adminpass"),
   stringsAsFactors = FALSE
 )
 
 
-class.data1 <- subset(class.data, (instructors == users$username)) 
-
+class.data1 <-class.data
 
 ######### CREATE USER INTERFACE (UI) #########
 ## Design all tabs present in UI
 
 ##### Define login tab #####
- login_tab <-  tabPanel(
-   "Login",
-   fluidPage(
-     sidebarLayout(
-       sidebarPanel(
-         textInput("username", "Username:"),
-         passwordInput("password", "Password:"),
-         actionButton("login", "Login")
-       ),
-       mainPanel(
-         plotOutput("data_plot")
-       )
-     )
-   )
- )
+login_tab <-  tabPanel(
+  "Login",
+  fluidPage(
+    sidebarLayout(
+      sidebarPanel(
+        textInput("username", "Username:"),
+        passwordInput("password", "Password:"),
+        actionButton("login", "Login")
+      ),
+      mainPanel(
+        plotOutput("data_plot")
+      )
+    )
+  )
+)
 
 
 ##### Define home tab #####
@@ -266,15 +248,15 @@ data_tab <- tabPanel(title = "Data",
                          
                        )
                      ))
- 
+
 ##### Define how tabs will be displayed on app #####
 # navbar enables a navigation bar with different tabs
 ui <- navbarPage(title = "Visualizing inequities in student performance",
                  id = "tabs",
                  collapsible = TRUE,
                  login_tab)
- 
- 
+
+
 ######### SERVER FUNCTION (INSTRUCTIONS FOR BUILDING APP) #########
 
 server <- function(input, output, session) { 
@@ -286,48 +268,48 @@ server <- function(input, output, session) {
          width = imagewidth, height = imageheight)
   }, deleteFile = FALSE)
   
-   # Reactive values to store logged-in user's data
-   user_data <- reactiveVal(NULL)
-
-   ## login 
-   # query user for credentials
-   observeEvent(input$login, {
-     username <- input$username
-     password <- input$password
-     
-     # Check if credentials match
-     user <- users[users$username == username & users$password == password, ]
-     
-     
-     # login successful
-     if (nrow(user) == 1) {
-       showModal(modalDialog(
-         title = "Login Successful",
-         "Welcome to the app!"
-         
-       ))
-       
-       
-       # sets up tabs for user
-       appendTab("tabs", home_tab, select = TRUE)
-       appendTab("tabs", data_tab, select = FALSE)
-     
-    # login failed
-     } else {
-       showModal(modalDialog(
-         title = "Login Failed",
-         "Invalid username or password. Please try again."
-       ))
-     }
-     
-     
-     
-   })
-
-
-##### Query user for student group, define, and display relevant resources #####
+  # Reactive values to store logged-in user's data
+  user_data <- reactiveVal(NULL)
   
-## Racially Minoritized 
+  ## login 
+  # query user for credentials
+  observeEvent(input$login, {
+    username <- input$username
+    password <- input$password
+    
+    # Check if credentials match
+    user <- users[users$username == username & users$password == password, ]
+    
+    
+    # login successful
+    if (nrow(user) == 1) {
+      showModal(modalDialog(
+        title = "Login Successful",
+        "Welcome to the app!"
+        
+      ))
+      
+      
+      # sets up tabs for user
+      appendTab("tabs", home_tab, select = TRUE)
+      appendTab("tabs", data_tab, select = FALSE)
+      
+      # login failed
+    } else {
+      showModal(modalDialog(
+        title = "Login Failed",
+        "Invalid username or password. Please try again."
+      ))
+    }
+    
+    
+    
+  })
+  
+  
+  ##### Query user for student group, define, and display relevant resources #####
+  
+  ## Racially Minoritized 
   reactive_function2 <- eventReactive(input$minoritized_how, {
     req(input$minoritized_how == "Racially Minoritized")
   })
@@ -434,7 +416,7 @@ server <- function(input, output, session) {
   })
   
   
-
+  
   output$minoritized_how_info <- renderText({
     reactive_function()
     # huskies, make sure the text below matches the definition of first generation used in your data
@@ -513,9 +495,9 @@ Here are some ways to incorporate high structure in your course: "
   #     tagList(url9)
   # 
   #   })
-
-    
-##### Disaggregate data and display violin plot #####
+  
+  
+  ##### Disaggregate data and display violin plot #####
   
   
   output$plot1 <- renderPlot({
@@ -772,23 +754,23 @@ Here are some ways to incorporate high structure in your course: "
           filter(interaction(data.frame(course.year)) %in% 
                    interaction(high_n_combos))
         
-          ggplot(data.years.names.substitute.subset, aes(x = as.factor(course.year),
-                     y = course.grade,
-                     #fill = course.year,
-                     group = course.year)) + geom_violin(
-                       draw_quantiles = c(0.25, 0.75),
-                       position = position_dodge(0.5),
-                       width =
-                         0.4,
-                       linewidth=.3
-                     ) + geom_violin(
-                       draw_quantiles = .5,
-                       position = position_dodge(0.5),
-                       width =
-                         0.4,
-                       linewidth=.75,
-                       alpha = 0
-                     ) + labs(x = "Course Year", y = "GPA") + ggtitle("Student academic performance") + theme_bw(base_size=18) +
+        ggplot(data.years.names.substitute.subset, aes(x = as.factor(course.year),
+                                                       y = course.grade,
+                                                       #fill = course.year,
+                                                       group = course.year)) + geom_violin(
+                                                         draw_quantiles = c(0.25, 0.75),
+                                                         position = position_dodge(0.5),
+                                                         width =
+                                                           0.4,
+                                                         linewidth=.3
+                                                       ) + geom_violin(
+                                                         draw_quantiles = .5,
+                                                         position = position_dodge(0.5),
+                                                         width =
+                                                           0.4,
+                                                         linewidth=.75,
+                                                         alpha = 0
+                                                       ) + labs(x = "Course Year", y = "GPA") + ggtitle("Student academic performance") + theme_bw(base_size=18) +
           theme(plot.title = element_text(hjust = 0.5), legend.position = "top")
         
       }
@@ -1034,23 +1016,23 @@ Here are some ways to incorporate high structure in your course: "
           filter(interaction(data.frame(course.year)) %in% 
                    interaction(high_n_combos))
         
-          ggplot(data.years.names.substitute.subset, aes(x = as.factor(course.year),
-                     y = course.grade,
-                     #fill = course.year,
-                     group = course.year)) + geom_violin(
-                       draw_quantiles = c(0.25, 0.75),
-                       position = position_dodge(0.5),
-                       width =
-                         0.4,
-                       linewidth=.3
-                     ) + geom_violin(
-                       draw_quantiles = .5,
-                       position = position_dodge(0.5),
-                       width =
-                         0.4,
-                       linewidth=.75,
-                       alpha = 0
-                     ) + labs(x = "Course Year", y = "GPA") + ggtitle("Student academic performance") + theme_bw(base_size=18) +
+        ggplot(data.years.names.substitute.subset, aes(x = as.factor(course.year),
+                                                       y = course.grade,
+                                                       #fill = course.year,
+                                                       group = course.year)) + geom_violin(
+                                                         draw_quantiles = c(0.25, 0.75),
+                                                         position = position_dodge(0.5),
+                                                         width =
+                                                           0.4,
+                                                         linewidth=.3
+                                                       ) + geom_violin(
+                                                         draw_quantiles = .5,
+                                                         position = position_dodge(0.5),
+                                                         width =
+                                                           0.4,
+                                                         linewidth=.75,
+                                                         alpha = 0
+                                                       ) + labs(x = "Course Year", y = "GPA") + ggtitle("Student academic performance") + theme_bw(base_size=18) +
           theme(plot.title = element_text(hjust = 0.5), legend.position = "top")
         
       }
@@ -1061,11 +1043,11 @@ Here are some ways to incorporate high structure in your course: "
     
     
   })
-
+  
 }
 
 ######### RUN THE APP #########
-  
+
 shinyApp(ui = ui, server = server)
 
 
