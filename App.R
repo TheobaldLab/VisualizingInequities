@@ -17,15 +17,8 @@ library(tidyverse)
 ## load your data file
 class.data <- read.csv("Template_Inequities_In_Course_Performance_Cleaned.csv") #huskies: make sure the text in quotations exactly matches your csv file name
 
-# if (username=="admin"){
-#   class.data1 <-class.data
-# } else {
-#   class.data1 <- subset(class.data, (instructors == users$username)) 
-# }
-
 ######### DEFINE VARIABLES #########
 
-numinstructors <-30
 
 ##### Define date ranges #####
 minyear <- min(class.data$course.year)
@@ -59,32 +52,20 @@ url7 <- a("Values Affirmation to Reduce Gender Acheivement Gap in Science", href
 url8 <-a("How to design a high-structure class", href = "https://files.eric.ed.gov/fulltext/EJ1268125.pdf")
 url9 <- a("Sample materials from a high-structure class", href = "https://www.lifescied.org/doi/10.1187/cbe.14-03-0050")
 url10 <-a("Resources from UW Teach", href = "https://teaching.washington.edu/inclusive-teaching/supporting-specific-student-groups/first-generation-students/")
-
 ######### AUTHENTICATION #########
 
 ## user database
 # define authorized user names and passwords
 # cougars, define or read in a dataframe of user names and passwords for your organization 
-
-# Use a for loop to generate the instructor names
-instructor_names <- vector("character", numinstructors)
-instructor_password <- vector("character", numinstructors)
-for (i in 1:numinstructors) {
-  instructor_names[i] <- paste("instructor", i, sep = "")
-  instructor_password[i] <- paste("pass", i, sep = "")
-}
-
-
 users <- data.frame(
-  username = instructor_names,
-  password = instructor_password,
+  username = c("admin", "instructor1", "instructor17"),
+  password = c("adminpass", "pass1", "pass17"),
   stringsAsFactors = FALSE
 )
 
-
-class.data1 <- subset(class.data, (instructors == users$username)) 
-
-
+# filter data to match instructor
+#class.data1 <- subset(class.data, (instructors == users$username)) 
+class.data1 <- class.data
 ######### CREATE USER INTERFACE (UI) #########
 ## Design all tabs present in UI
 
@@ -106,166 +87,7 @@ class.data1 <- subset(class.data, (instructors == users$username))
  )
 
 
-##### Define home tab #####
-home_tab <- tabPanel(
-  title = "Background",
-  tags$style(HTML("
-    .custom-text { color: black; line-height: 1.5; }
-    .custom-bg-1 { background-color: #fad1d2; padding: 20px; border-radius: 10px; margin-bottom: 10px; }
-    .custom-bg-2 { background-color: #fbb2b3; padding: 20px; border-radius: 10px; margin-bottom: 10px; }
-    .custom-bg-3 { background-color: #f8999d; padding: 20px; border-radius: 10px; margin-bottom: 10px; } /* Color between #fbb2b3 and #ed5e61 */
-    .custom-no-bg { margin-bottom: 10px; }
-    .flex-container { display: flex; }
-    .left-boxes { flex: 1; }
-    .right-image { flex: 1; padding-left: 20px; }
-    .half-width-image { max-width: 50%; }
-  ")),
-  
-  h4(class = "custom-text", "Educational inequities remain one of the most persistent, intractable, and most crucial problems in our society. Interrogating the manifestation of these inequities in higher education classes is essential and urgent. You are taking the first step."),
-  
-  div(class = "flex-container",
-      div(class = "left-boxes",
-          div(
-            class = "custom-bg-1",
-            strong("What this app is:"),
-            br(),
-            tags$ul(
-              tags$li("This app is intended as a tool for self-reflection: instructors know their class environment best but interrogating the manifestation of educational inequities is not always simple."), 
-              tags$li("This tool aims to address this shortcoming. By selecting years, terms, and courses, instructors can disaggregate their data by several student identities. Because without disaggregating data, we are only measuring the majority. "), 
-              tags$li("With intentional, guided self-reflection, and carefully curated resources, instructors can practice equity-minded reflection practices and develop strategies that disrupt inequities in their classrooms.")
-            )
-          ),
-          
-          div(
-            class = "custom-bg-2",
-            strong("Broader context:"),
-            tags$ul(
-              tags$li("Differences between student groups are due to systemic barriers, not due to inherent differences in abilities. Said another way, we need to fix our institutions, not our students."), 
-              tags$li("While a single instructor does not always have control over larger systemic issues, the classroom is one place where they do have control."),
-              tags$li("It can be intimidating to start. And once you do, please don’t stop.")
-            )
-          ),
-          
-          div(
-            class = "custom-bg-3",
-            strong("Data presented and intention"),
-            tags$ul(
-              tags$li("The data shown here come from a freely available dataset of student outcomes. The data originally came from institutional data and have been further anonymized to obscure courses, instructors, terms, and years. The students and the patterns in student outcomes are real."), 
-              tags$li("The intention is that instructors or administrators will download and edit the code to develop a data processing application to explore their own data. We use these data here for illustrative purposes only to demonstrate the power and potential of such a tool."), 
-              tags$li("One can read more about the application here: [link to publication coming soon]")
-            )
-          )
-      ),
-      
-      div(class = "right-image half-width-image", 
-          strong("Key to Reading Kernel (Violin) Plots:"),
-          imageOutput("myImage")
-      )
-  )
-)
 
-
-
-data_tab <- tabPanel(title = "Data",
-                     fluidPage(
-                       titlePanel("Student grade distributions"),
-                       sidebarLayout(
-                         # the following code sets up the options for dis aggregating data
-                         sidebarPanel( 
-                           width = sidebarwidth,
-                           
-                           # cougars, the following codes creates a slider to select what years you want 
-                           # to display in the visual. You can use this code as a template to create a 
-                           # similar slider with other variables of interest
-                           sliderInput( #"integer slider",
-                             "year",
-                             "Choose year",
-                             min = minyear, #huskies, update this with the minimum year from your data
-                             max = maxyear, #huskies, update this with the maximum year from your data
-                             value = c(initialminyear,initialmaxyear), #huskies, sets the initial date range to be displayed
-                             #make sure the years in the line above are found in your data
-                             sep = "",
-                             step = 1
-                             #round = 0
-                           ), 
-                           
-                           # cougars, the following code creates a drop-down to select which course
-                           # you want to visualize
-                           selectInput(
-                             "course",
-                             "Choose course",
-                             choices = c(unique(class.data1$course))
-                             #selected = "Course10C" #huskies, sets the initial course to be displayed
-                             #change the course name in quotations to a course name found in your data
-                           ),
-                           
-                           # cougars, creates a drop-down to select which quarter you want to visualize
-                           selectInput( 
-                             "quarter",
-                             "Choose quarter",
-                             
-                             # huskies, you will need to change the items in the quotations marks in the
-                             # following choices list to match the names in the course.quarter column in your data
-                             choices = c(
-                               "None selected",
-                               "Winter",
-                               "Spring",
-                               "Summer",
-                               "Fall"
-                             ),
-                             selected = "None selected"
-                           ),
-                           
-                           # creates a drop-down to select which minoritized group you would like to disaggreagate by
-                           selectizeInput(
-                             "minoritized_how", 
-                             "Which minoritized group would you like data disggreagated by?",
-                             
-                             # the following code defines the options for disaggregating the data
-                             # huskies, ensure the following list matches column names in your data
-                             # you can also add column names
-                             choices = c( 
-                               "None selected",
-                               "Racially Minoritized",
-                               "Binary Gender",
-                               "First Generation Status"#, #cougars (comma only)
-                               #"Additional Variable" #cougars
-                             ),
-                             selected = "None selected"
-                           ),
-                           textOutput("minoritized_how_info"),
-                           textOutput("minoritized_how_info2"),
-                           textOutput("minoritized_how_info3")#, #cougars (comma only)
-                           #textOutput("minoritized_how_info4") #cougars
-                         ),
-                         
-                         mainPanel(
-                           plotOutput("plot1"),
-                           uiOutput("reflection_questions"),
-                           uiOutput("reflection_questions1"),
-                           uiOutput("reflection_questions2"),
-                           uiOutput("intervention_info"),
-                           uiOutput("intervention_info2"),
-                           textOutput("intervention_info3"),
-                           #textOutput("intervention_info4"), #cougars
-                           uiOutput("url1"),
-                           uiOutput("url2"),
-                           uiOutput("url3"),
-                           uiOutput("url1.2"),
-                           uiOutput("url2.2"),
-                           uiOutput("url3.2"),
-                           uiOutput("url1.3"),
-                           uiOutput("url2.3"),
-                           uiOutput("url3.3"), 
-                           uiOutput("url4.3")#, #cougars (just the comma)
-                           #uiOutput("url1.4"), #cougars
-                           #uiOutput("url2.4"), #cougars
-                           #uiOutput("url3.4") #cougars
-                         )
-                         
-                         
-                       )
-                     ))
  
 ##### Define how tabs will be displayed on app #####
 # navbar enables a navigation bar with different tabs
@@ -281,9 +103,9 @@ server <- function(input, output, session) {
   
   # Render the image
   output$myImage <- renderImage({
-    list(src = "app_image.png", #load image from app to display
+    list(src = "app_image.png",
          alt = "Your Image Alt Text",
-         width = imagewidth, height = imageheight)
+         width = 500, height = 400)
   }, deleteFile = FALSE)
   
    # Reactive values to store logged-in user's data
@@ -298,7 +120,6 @@ server <- function(input, output, session) {
      # Check if credentials match
      user <- users[users$username == username & users$password == password, ]
      
-     
      # login successful
      if (nrow(user) == 1) {
        showModal(modalDialog(
@@ -307,6 +128,171 @@ server <- function(input, output, session) {
          
        ))
        
+       #filter data
+       class.data1 <- class.data1[class.data1$instructors == username, ]
+       #INSERT!!
+       ##### Define home tab #####
+       home_tab <- tabPanel(
+         title = "Background",
+         tags$style(HTML("
+    .custom-text { color: black; line-height: 1.5; }
+    .custom-bg-1 { background-color: #fad1d2; padding: 20px; border-radius: 10px; margin-bottom: 10px; }
+    .custom-bg-2 { background-color: #fbb2b3; padding: 20px; border-radius: 10px; margin-bottom: 10px; }
+    .custom-bg-3 { background-color: #f8999d; padding: 20px; border-radius: 10px; margin-bottom: 10px; } /* Color between #fbb2b3 and #ed5e61 */
+    .custom-no-bg { margin-bottom: 10px; }
+    .flex-container { display: flex; }
+    .left-boxes { flex: 1; }
+    .right-image { flex: 1; padding-left: 20px; }
+    .half-width-image { max-width: 50%; }
+  ")),
+         
+         h4(class = "custom-text", "Educational inequities remain one of the most persistent, intractable, and most crucial problems in our society. Interrogating the manifestation of these inequities in higher education classes is essential and urgent. You are taking the first step."),
+         
+         div(class = "flex-container",
+             div(class = "left-boxes",
+                 div(
+                   class = "custom-bg-1",
+                   strong("What this app is:"),
+                   br(),
+                   tags$ul(
+                     tags$li("This app is intended as a tool for self-reflection: instructors know their class environment best but interrogating the manifestation of educational inequities is not always simple."), 
+                     tags$li("This tool aims to address this shortcoming. By selecting years, terms, and courses, instructors can disaggregate their data by several student identities. Because without disaggregating data, we are only measuring the majority. "), 
+                     tags$li("With intentional, guided self-reflection, and carefully curated resources, instructors can practice equity-minded reflection practices and develop strategies that disrupt inequities in their classrooms.")
+                   )
+                 ),
+                 
+                 div(
+                   class = "custom-bg-2",
+                   strong("Broader context:"),
+                   tags$ul(
+                     tags$li("Differences between student groups are due to systemic barriers, not due to inherent differences in abilities. Said another way, we need to fix our institutions, not our students."), 
+                     tags$li("While a single instructor does not always have control over larger systemic issues, the classroom is one place where they do have control."),
+                     tags$li("It can be intimidating to start. And once you do, please don’t stop.")
+                   )
+                 ),
+                 
+                 div(
+                   class = "custom-bg-3",
+                   strong("Data presented and intention"),
+                   tags$ul(
+                     tags$li("The data shown here come from a freely available dataset of student outcomes. The data originally came from institutional data and have been further anonymized to obscure courses, instructors, terms, and years. The students and the patterns in student outcomes are real."), 
+                     tags$li("The intention is that instructors or administrators will download and edit the code to develop a data processing application to explore their own data. We use these data here for illustrative purposes only to demonstrate the power and potential of such a tool."), 
+                     tags$li("One can read more about the application here: [link to publication coming soon]")
+                   )
+                 )
+             ),
+             
+             div(class = "right-image half-width-image", 
+                 strong("Key to Reading Kernel (Violin) Plots:"),
+                 imageOutput("myImage")
+             )
+         )
+       )
+       
+       
+       
+       data_tab <- tabPanel(title = "Data",
+                            fluidPage(
+                              titlePanel("Student grade distributions"),
+                              sidebarLayout(
+                                # the following code sets up the options for dis aggregating data
+                                sidebarPanel( 
+                                  width = 4,
+                                  
+                                  # cougars, the following codes creates a slider to select what years you want 
+                                  # to display in the visual. You can use this code as a template to create a 
+                                  # similar slider with other variables of interest
+                                  sliderInput( #"integer slider",
+                                    "year",
+                                    "Choose year",
+                                    min = minyear, #huskies, update this with the minimum year from your data
+                                    max = maxyear, #huskies, update this with the maximum year from your data
+                                    value = c(initialminyear,initialmaxyear), #huskies, sets the initial date range to be displayed
+                                    #make sure the years in the line above are found in your data
+                                    sep = "",
+                                    step = 1
+                                    #round = 0
+                                  ), 
+                                  
+                                  # cougars, the following code creates a drop-down to select which course
+                                  # you want to visualize
+                                  selectInput(
+                                    "course",
+                                    "Choose course",
+                                    choices = c(unique(class.data1$course))
+                                    #selected = "Course10C" #huskies, sets the initial course to be displayed
+                                    #change the course name in quotations to a course name found in your data
+                                  ),
+                                  
+                                  # cougars, creates a drop-down to select which quarter you want to visualize
+                                  selectInput( 
+                                    "quarter",
+                                    "Choose quarter",
+                                    
+                                    # huskies, you will need to change the items in the quotations marks in the
+                                    # following choices list to match the names in the course.quarter column in your data
+                                    choices = c(
+                                      "None selected",
+                                      "Winter",
+                                      "Spring",
+                                      "Summer",
+                                      "Fall"
+                                    ),
+                                    selected = "None selected"
+                                  ),
+                                  
+                                  # creates a drop-down to select which minoritized group you would like to disaggreagate by
+                                  selectizeInput(
+                                    "minoritized_how", 
+                                    "Which minoritized group would you like data disggreagated by?",
+                                    
+                                    # the following code defines the options for disaggregating the data
+                                    # huskies, ensure the following list matches column names in your data
+                                    # you can also add column names
+                                    choices = c( 
+                                      "None selected",
+                                      "Racially Minoritized",
+                                      "Binary Gender",
+                                      "First Generation Status"#, #COUGARS (comma only)
+                                      #"Additional Variable" #COUGARS
+                                    ),
+                                    selected = "None selected"
+                                  ),
+                                  textOutput("minoritized_how_info"),
+                                  textOutput("minoritized_how_info2"),
+                                  textOutput("minoritized_how_info3")#, #COUGAR (comma only)
+                                  #textOutput("minoritized_how_info4") #COUGAR
+                                ),
+                                
+                                mainPanel(
+                                  plotOutput("plot1"),
+                                  uiOutput("reflection_questions"),
+                                  uiOutput("reflection_questions1"),
+                                  uiOutput("reflection_questions2"),
+                                  uiOutput("intervention_info"),
+                                  uiOutput("intervention_info2"),
+                                  textOutput("intervention_info3"),
+                                  #textOutput("intervention_info4"), #COUGAR
+                                  uiOutput("url1"),
+                                  uiOutput("url2"),
+                                  uiOutput("url3"),
+                                  uiOutput("url1.2"),
+                                  uiOutput("url2.2"),
+                                  uiOutput("url3.2"),
+                                  uiOutput("url1.3"),
+                                  uiOutput("url2.3"),
+                                  uiOutput("url3.3"), 
+                                  uiOutput("url4.3")#, #COUGAR (just the comma)
+                                  #uiOutput("url1.4"), #COUGAR
+                                  #uiOutput("url2.4"), #COUGAR
+                                  #uiOutput("url3.4") #COUGAR
+                                )
+                                
+                                
+                              )
+                            ))
+       
+       #END INSERT
        
        # sets up tabs for user
        appendTab("tabs", home_tab, select = TRUE)
@@ -323,6 +309,8 @@ server <- function(input, output, session) {
      
      
    })
+
+
 
 
 ##### Query user for student group, define, and display relevant resources #####
@@ -434,7 +422,8 @@ server <- function(input, output, session) {
   })
   
   
-
+  
+  
   output$minoritized_how_info <- renderText({
     reactive_function()
     # huskies, make sure the text below matches the definition of first generation used in your data
@@ -476,7 +465,7 @@ Here are some ways to incorporate high structure in your course: "
   })
   
   
-  #   ## cougars -- ADDITIONAL VARIABLE
+  #   ## COUGARS -- ADDITIONAL VARIABLE
   #   reactive_function4 <- eventReactive(input$minoritized_how, {
   #     req(input$minoritized_how == "Additional Variable")
   #   })
@@ -517,10 +506,10 @@ Here are some ways to incorporate high structure in your course: "
     
 ##### Disaggregate data and display violin plot #####
   
+#Data disaggregated by students majoritized and minoritized on basis of race when no course quarter selected -- WRONG it's when a Q is selected
   
   output$plot1 <- renderPlot({
     if (input$quarter != "None selected") {
-      #Data disaggregated by students majoritized and minoritized on basis of race when specific course quarter selected
       if (input$minoritized_how == "Racially Minoritized") {
         data.years.names.substitute.subset <-
           class.data1 %>%
@@ -555,9 +544,10 @@ Here are some ways to incorporate high structure in your course: "
             fill = as.factor(Racially_Minoritized)
           )
         ) + geom_violin(
-          draw_quantiles = c(lowerquantile, upperquantile),
+          draw_quantiles = c(0.25, 0.75),
           position = position_dodge(0.5),
-          width = violinwidth,
+          width =
+            0.4,
           linewidth=.3
         ) + geom_violin(
           draw_quantiles = .5,
@@ -578,7 +568,7 @@ Here are some ways to incorporate high structure in your course: "
                               'Did not indicate'
                             )) 
       }
-      #Data disaggregated by students gender when specific course quarter selected
+      #Data disaggregated by students gender when no course quarter selected
       else if (input$minoritized_how == "Binary Gender") {
         data.years.names.substitute.subset <-
           class.data1 %>%
@@ -635,7 +625,7 @@ Here are some ways to incorporate high structure in your course: "
                               'Did not indicate'
                             )) 
       }
-      #Data disaggregated by students first generation status when specific course quarter selected
+      #Data disaggregated by students first generation status when no course quarter selected
       else if (input$minoritized_how == "First Generation Status") {
         data.years.names.substitute.subset <-
           class.data1 %>%
@@ -692,7 +682,7 @@ Here are some ways to incorporate high structure in your course: "
                             ))
       }
       
-      # #cougars -- Data disaggregated by additional variable when specific course quarter selected
+      # #COUGARS -- Data disaggregated by additional variable when no course quarter selected
       # else if (input$minoritized_how == "Additional Variable") {
       #   data.years.names.substitute.subset <-
       #     class.data1 %>%
@@ -749,7 +739,7 @@ Here are some ways to incorporate high structure in your course: "
       #                       ))
       # }
       
-      #Data not disaggregated when specific course quarter selected
+      #Data not disaggregated when no course quarter selected
       else {
         data.years.names.substitute.subset <- class.data1 %>%
           filter(
@@ -795,7 +785,7 @@ Here are some ways to incorporate high structure in your course: "
       
     }
     else {
-      #Data disaggregated by students majoritized and minoritized on basis of race when no quarter selected
+      #Data disaggregated by students majoritized and minoritized on basis of race when specific course quarter selected
       if (input$minoritized_how == "Racially Minoritized") {
         data.years.names.substitute.subset <-
           class.data1 %>%
@@ -851,7 +841,7 @@ Here are some ways to incorporate high structure in your course: "
                             ))
       }
       
-      #Data disaggregated by students gender when no course quarter selected
+      #Data disaggregated by students gender when specific course quarter selected
       else if (input$minoritized_how == "Binary Gender") {
         data.years.names.substitute.subset <-
           class.data1 %>%
@@ -906,7 +896,7 @@ Here are some ways to incorporate high structure in your course: "
                             ))
       }
       
-      #Data disaggregated by students first generation status when no course quarter selected
+      #Data disaggregated by students first generation status when specific course quarter selected
       else if (input$minoritized_how == "First Generation Status") {
         data.years.names.substitute.subset <-
           class.data1 %>%
@@ -960,7 +950,7 @@ Here are some ways to incorporate high structure in your course: "
                             ))
       }
       
-      # #cougars -- Data disaggregated by additional variable when no course quarter selected
+      # #COUGAR -- Data disaggregated by additional varaible when specific course quarter selected
       # else if (input$minoritized_how == "Additional Variable") {
       #   data.years.names.substitute.subset <-
       #     class.data1 %>%
@@ -1014,7 +1004,7 @@ Here are some ways to incorporate high structure in your course: "
       #                           ))
       # }
       
-      #Data not disaggregated when no course quarter selected
+      #Data not disaggregated when specific course quarter selected
       else {
         data.years.names.substitute.subset <- class.data1 %>%
           filter(course == input$course,
