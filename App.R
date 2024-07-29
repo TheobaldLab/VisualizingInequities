@@ -58,8 +58,8 @@ url10 <-a("Resources from UW Teach", href = "https://teaching.washington.edu/inc
 # define authorized user names and passwords
 # cougars, define or read in a dataframe of user names and passwords for your organization 
 users <- data.frame(
-  username = c("admin", "instructor1", "instructor17"),
-  password = c("adminpass", "pass1", "pass17"),
+  username = c("instructor1", "instructor2"),
+  password = c("pass1", "pass2"),
   stringsAsFactors = FALSE
 )
 
